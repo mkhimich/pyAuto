@@ -1,18 +1,14 @@
 # coding=utf-8
 import unittest
 
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 import page
+from BaseTest import BaseTestCase
 
 
-class PythonOrgSearch(unittest.TestCase):
+class PythonOrgSearch(BaseTestCase):
     """A sample test class to show how page object works"""
-
-    def setUp(self):
-        self.driver = webdriver.Chrome("./webdriver/mac/2.22/chromedriver")
-        self.driver.get("https://10.129.140.24/")
 
     def test_search_in_spice_web(self):
         """
@@ -20,7 +16,7 @@ class PythonOrgSearch(unittest.TestCase):
         Note that it does not look for any particular text in search results page. This test verifies that
         the results were not empty.
         """
-
+        self.driver.get("https://10.129.140.24/")
         # Load the main page.
         main_page = page.MainPage(self.driver)
         # Checks if the word "Спайсы" is in title
@@ -32,9 +28,3 @@ class PythonOrgSearch(unittest.TestCase):
         # Verifies that the results page is not empty
         assert search_results_page.is_results_found(), "Some results found."
 
-    def tearDown(self):
-        self.driver.close()
-
-
-if __name__ == "__main__":
-    unittest.main()
