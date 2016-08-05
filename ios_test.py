@@ -5,7 +5,6 @@ import datetime
 
 from appium import webdriver
 from time import sleep
-from subprocess import call
 
 
 class WebViewIOSTests(unittest.TestCase):
