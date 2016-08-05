@@ -4,11 +4,14 @@ import datetime
 
 from appium import webdriver
 from time import sleep
+from subprocess import call
 
 
 class WebViewIOSTests(unittest.TestCase):
     def setUp(self):
         # set up appium
+
+        call(["appium"])
         dir_path = os.path.dirname(os.path.realpath(__file__))
         app = dir_path + '/iosapp/' + 'ApiumTest.app'
         app = os.path.abspath(app)
@@ -23,6 +26,7 @@ class WebViewIOSTests(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+        call(["killall node"])
 
     def test_get_url(self):
         add_el = self.driver.find_element_by_xpath('//UIAApplication[1]/UIAWindow[1]/UIANavigationBar[1]/UIAButton[3]')
