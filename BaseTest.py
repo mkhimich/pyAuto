@@ -35,8 +35,10 @@ class BaseTestCase(unittest.TestCase):
             driver = webdriver.Ie()
         elif browser_type == "Safari":
             if os_name == "win":
-                raise RuntimeError("Safary is not supported on platform " + os_name)
+                raise RuntimeError("Safari is not supported on platform " + os_name)
             driver = webdriver.Safari()
+        elif browser_type == "Android":
+            driver = webdriver.Android()
         else:
             raise RuntimeError("Browser not supported")
         return driver
