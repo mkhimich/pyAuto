@@ -2,16 +2,21 @@ import getopt
 import os
 import sys
 import unittest
+import datetime
 import Properties
+import logging
 
 from selenium import webdriver
 
 
 class BaseTestCase(unittest.TestCase):
+    logfile = str('test_' + str(datetime.datetime.utcnow()) + '.log')
+    logging.basicConfig(filename=logfile, level=logging.INFO)
+
     @staticmethod
     def getDriver(browser_type):
         os_type = sys.platform
-        print(str(sys.argv))
+        logging.info(str(sys.argv))
         if os_type == "darwin":
             os_name = "mac"
         elif os_type == "windows":
@@ -47,19 +52,21 @@ class BaseTestCase(unittest.TestCase):
         try:
             opts, args = getopt.getopt(argv, "b:")
         except getopt.GetoptError:
-            print('no params, using browser from properties')
+            logging.info('no params, using browser from properties')
         for opt, arg in opts:
             if opt in "-b":
                 browserName = arg
         if not browserName:
             browserName = Properties.browser
-        print('Selected browser is ', browserName)
+        logging.info('Selected browser is ' + browserName)
         return browserName
 
     def setUp(self):
+        logging.info('Getting webdriver')
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
+        logging.info('Finishing test')
         self.driver.close()
 
 
