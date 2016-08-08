@@ -13,22 +13,25 @@ class WebViewIOSTests(unittest.TestCase):
     def setUp(self):
         # set up appium
         # self.log = logging.getLogger()
-        logging.basicConfig(filename='test_' + datetime.datetime.utcnow() + '.log', level=logging.INFO)
+        logging.basicConfig(filename='test_' + str(datetime.datetime.utcnow()) + '.log', level=logging.INFO)
         logging.info("Starting appium")
         self.process = subprocess.Popen(['appium'],
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         sleep(10)
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        app = dir_path + '/iosapp/' + 'ApiumTest.app'
+        app = dir_path + '/iosapp/' + 'ApiumTest.ipa'
         app = os.path.abspath(app)
         logging.info("Starting driver")
         self.driver = webdriver.Remote(
             command_executor='http://127.0.0.1:4723/wd/hub',
             desired_capabilities={
                 'app': app,
-                'deviceName': 'iPhone 6s Plus',
+                'appName': 'AppiumTest',
+                #'deviceName': 'iPhone 6s Plus',
+                'deviceName': 'iphone spredfast',
+                'udid': 'f14bcd4c08d3456b74a45107514217e6ba57c3da',
                 'platformName': 'iOS',
-                'platformVersion': '9.3'
+                'platformVersion': '8.4.'
             })
 
     def tearDown(self):
