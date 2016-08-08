@@ -13,6 +13,7 @@ class WebViewIOSTests(unittest.TestCase):
 
         self.process = subprocess.Popen(['appium'],
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sleep(10)
         dir_path = os.path.dirname(os.path.realpath(__file__))
         app = dir_path + '/iosapp/' + 'ApiumTest.app'
         app = os.path.abspath(app)
