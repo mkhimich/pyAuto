@@ -1,9 +1,9 @@
 import os
-import unittest
-
 import subprocess
-from appium import webdriver
+import unittest
 from time import sleep
+
+from appium import webdriver
 
 # Returns abs path relative to this file and not cwd
 PATH = lambda p: os.path.abspath(
@@ -13,15 +13,18 @@ PATH = lambda p: os.path.abspath(
 
 class SimpleAndroidTests(unittest.TestCase):
     def setUp(self):
+        path = PATH('../androidapp/ApiDemos-debug.apk')
         desired_caps = {}
+        desired_caps['device'] = 'Android'
         desired_caps['platformName'] = 'Android'
-        desired_caps['platformVersion'] = '5.1'
-        desired_caps['deviceName'] = 'Android Emulator'
-        desired_caps['app'] = PATH(
-            'ApiDemos-debug.apk'
-        )
+        desired_caps['platformVersion'] = '4.4'
+        desired_caps['deviceName'] = 'Android'
+        desired_caps['udid'] = '5e1b87f2'
 
-        self.process = subprocess.Popen(['appium --debug-log-spacing --automation-name "Appium" --platform-name "Android" --platform-version "5.1" --app "/Users/rielov/Documents/Work/pyAuto/ApiDemos-debug.apk" --avd "AVD_for_Nexus_6_by_Google" --device-name "Android Emulator"'], shell=True)
+        desired_caps['app'] = path
+        self.process = subprocess.Popen([
+            'appium --debug-log-spacing --automation-name "Appium" --platform-name "Android" --platform-version "4.4" --app "' + path + '"'],
+            shell=True)
         sleep(5)
         self.driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
@@ -29,7 +32,6 @@ class SimpleAndroidTests(unittest.TestCase):
         # end the session
         self.driver.quit()
         self.process.terminate()
-        subprocess.Popen(['killall qemu-system-i386'], shell=True)
 
     def test_find_elements(self):
         el = self.driver.find_element_by_accessibility_id('Graphics')
@@ -43,7 +45,7 @@ class SimpleAndroidTests(unittest.TestCase):
         self.assertIsNotNone(el)
 
         els = self.driver.find_elements_by_android_uiautomator("new UiSelector().clickable(true)")
-        self.assertGreaterEqual(12, len(els))
+        self.assertGreaterEqual(13, len(els))
 
         self.driver.find_element_by_android_uiautomator('text("API Demos")')
 
