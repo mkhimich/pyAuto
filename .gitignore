@@ -89,5 +89,4 @@ ENV/
 .ropeproject
 
 .idea
-.idea/
 node_modules
