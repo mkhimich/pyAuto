@@ -1,17 +1,22 @@
+import datetime
 import getopt
+import logging
 import os
 import sys
 import unittest
-import datetime
-import Properties
-import logging
 
 from selenium import webdriver
 
+import Properties
+import db
+
 
 class BaseTestCase(unittest.TestCase):
-    logfile = str('test_' + str(datetime.datetime.utcnow()) + '.log')
+    start_time = datetime.datetime.utcnow()
+    logfile = str('test_' + str(start_time) + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO)
+    browser_name = Properties.browser
+    currentResult = None
 
     @staticmethod
     def getDriver(browser_type):
@@ -48,24 +53,37 @@ class BaseTestCase(unittest.TestCase):
 
     def getParams(self):
         argv = sys.argv[1:]
-        browserName = ''
+        browser_name = ''
         try:
             opts, args = getopt.getopt(argv, "b:")
         except getopt.GetoptError:
             logging.info('no params, using browser from properties')
         for opt, arg in opts:
             if opt in "-b":
-                browserName = arg
-        if not browserName:
-            browserName = Properties.browser
-        logging.info('Selected browser is ' + browserName)
-        return browserName
+                browser_name = arg
+        logging.info('Selected browser is ' + browser_name)
+        return browser_name
+
+    def run(self, result=None):
+        self.currentResult = result  # remember result for use in tearDown
+        unittest.TestCase.run(self, result)  # call superclass run method
 
     def setUp(self):
         logging.info('Getting webdriver')
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
+        ok = self.currentResult.wasSuccessful()
+        errors = self.currentResult.errors
+        failures = self.currentResult.failures
+        if ok:
+            result = "passed"
+        else:
+            result = "failed"
+        message = str(errors) + "\n" + str(failures)
+        db.insert_result(self._testMethodName, self.browser_name, self.start_time,
+                         result, message)
+
         logging.info('Finishing test')
         self.driver.close()
 

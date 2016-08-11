@@ -18,6 +18,13 @@ class BasePage(object):
 
     def __init__(self, driver):
         self.driver = driver
+        self.inject_jquery(driver)
+
+    @staticmethod
+    def inject_jquery(driver):
+        with open('jquery/jquery.min.js', 'r') as jquery_js:
+            jquery = jquery_js.read()  # read the jquery from a file
+            driver.execute_script(jquery)
 
 
 class MainPage(BasePage):
