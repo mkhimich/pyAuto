@@ -7,6 +7,8 @@ import logging
 from appium import webdriver
 from time import sleep
 
+import properties
+
 
 class WebViewIOSTests(unittest.TestCase):
 
@@ -27,8 +29,8 @@ class WebViewIOSTests(unittest.TestCase):
                 'app': app,
                 'appName': 'AppiumTest',
                 #'deviceName': 'iPhone 6s Plus',  # emulator name
-                'deviceName': 'iphone spredfast',  # real device name
-                'udid': 'f14bcd4c08d3456b74a45107514217e6ba57c3da',  # udid of real device
+                'deviceName': properties.iosDeviceName,  # real device name
+                'udid': properties.iosDeviceUDID,  # udid of real device
                 'platformName': 'iOS',
                 'platformVersion': '8.4'
             })
