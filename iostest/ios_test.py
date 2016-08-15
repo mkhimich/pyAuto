@@ -30,7 +30,7 @@ class WebViewIOSTests(unittest.TestCase):
                 'deviceName': 'iphone spredfast',  # real device name
                 'udid': 'f14bcd4c08d3456b74a45107514217e6ba57c3da',  # udid of real device
                 'platformName': 'iOS',
-                'platformVersion': '8.4.'
+                'platformVersion': '8.4'
             })
 
     def tearDown(self):
