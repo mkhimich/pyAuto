@@ -7,7 +7,7 @@ import unittest
 
 from selenium import webdriver
 
-import Properties
+import properties
 import db
 
 
@@ -15,7 +15,7 @@ class BaseTestCase(unittest.TestCase):
     start_time = datetime.datetime.utcnow()
     logfile = str('test_' + str(start_time) + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO)
-    browser_name = Properties.browser
+    browser_name = properties.browser
     currentResult = None
 
     @staticmethod
