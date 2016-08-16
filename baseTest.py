@@ -78,10 +78,9 @@ class BaseTestCase(unittest.TestCase):
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
-        ok = self.currentResult.wasSuccessful()
         errors = self.currentResult.errors
         failures = self.currentResult.failures
-        if ok:
+        if (len(errors) == 0) & (len(failures) == 0):
             result = "passed"
         else:
             result = "failed"
