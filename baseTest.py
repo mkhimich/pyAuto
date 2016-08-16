@@ -54,6 +54,7 @@ class BaseTestCase(unittest.TestCase):
         return driver
 
     def getParams(self):
+        opts = ''
         argv = sys.argv[1:]
         browser_name = ''
         try:
@@ -63,6 +64,8 @@ class BaseTestCase(unittest.TestCase):
         for opt, arg in opts:
             if opt in "-b":
                 browser_name = arg
+        if not browser_name:
+            browser_name = properties.browser
         logging.info('Selected browser is ' + browser_name)
         return browser_name
 
