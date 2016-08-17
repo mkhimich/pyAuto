@@ -1,10 +1,7 @@
-import unittest
-
-from baseTest import BaseTestCase
+from basetest import BaseTestCase
 
 
 class TestSimpleAndroidTests(BaseTestCase):
-
     def test_caption(self):
         el = self.driver.find_element_by_android_uiautomator("new UiSelector().text(\"Заметки\")")
 

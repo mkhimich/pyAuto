@@ -66,33 +66,34 @@ class BaseTestCase(unittest.TestCase):
         path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
         desired_caps = {}
         desired_caps['app'] = path
-        desired_caps['appName'] ='AppiumTest'
+        desired_caps['appName'] = 'AppiumTest'
         desired_caps['deviceName'] = properties.iosDeviceName
-        #desired_caps['udid'] = properties.iosDeviceUDID
+        # desired_caps['udid'] = properties.iosDeviceUDID
         desired_caps['platformName'] = 'iOS'
         desired_caps['platformVersion'] = '9.3'
         logging.info("Starting driver")
         self.process = subprocess.Popen(['appium'],
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         sleep(10)
+        from appium import webdriver
         driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
         return driver
 
     def getAndroidDriver(self):
         logging.info("Starting appium for Android")
-        path = PATH('../androidapp/ApiDemos-debug.apk')
+        path = PATH('androidapp/keep.apk')
         desired_caps = {}
         desired_caps['device'] = 'Android'
         desired_caps['platformName'] = 'Android'
-        desired_caps['platformVersion'] = '4.4'
+        desired_caps['platformVersion'] = '6.0.1'
         desired_caps['deviceName'] = 'Android'
-        desired_caps['udid'] = '5e1b87f2'
 
         desired_caps['app'] = path
         self.process = subprocess.Popen([
             'appium'],
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         sleep(10)
+        from appium import webdriver
         driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
         return driver
 
@@ -112,24 +113,24 @@ class BaseTestCase(unittest.TestCase):
         logging.info('Selected browser is ' + browser_name)
         return browser_name
 
-    def run(self, result=None):
-        self.currentResult = result  # remember result for use in tearDown
-        unittest.TestCase.run(self, result)  # call superclass run method
+    # def run(self, result=None):
+    #     self.currentResult = result  # remember result for use in tearDown
+    #     unittest.TestCase.run(self, result)  # call superclass run method
 
-    def setUp(self):
+    def setup_method(self, method):
         logging.info('Getting webdriver')
         self.driver = self.getDriver(self.getParams())
 
-    def tearDown(self):
-        errors = self.currentResult.errors
-        failures = self.currentResult.failures
-        if (len(errors) == 0) & (len(failures) == 0):
-            result = "passed"
-        else:
-            result = "failed"
-        message = str(errors) + "\n" + str(failures)
-        db.insert_result(self._testMethodName, self.browser_name, self.start_time,
-                         result, message)
+    def teardown_method(self, method):
+        # errors = self.
+        # failures = self.currentResult.failures
+        # if (len(errors) == 0) & (len(failures) == 0):
+        #     result = "passed"
+        # else:
+        #     result = "failed"
+        # message = str(errors) + "\n" + str(failures)
+        # db.insert_result(self._testMethodName, self.browser_name, self.start_time,
+        #                  result, message)
 
         logging.info('Finishing test')
         self.driver.quit()

@@ -4,7 +4,7 @@ import logging
 
 from time import sleep
 
-from baseTest import BaseTestCase
+from basetest import BaseTestCase
 
 
 class WebViewIOSTests(BaseTestCase):

@@ -1,7 +1,7 @@
 import unittest
 
 # Returns abs path relative to this file and not cwd
-from baseTest import BaseTestCase
+from basetest import BaseTestCase
 
 
 class SimpleAndroidTests(BaseTestCase):
