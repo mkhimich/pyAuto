@@ -1,44 +1,13 @@
-import subprocess
 import unittest
-import os
 import datetime
 import logging
 
-from appium import webdriver
 from time import sleep
 
-import properties
+from baseTest import BaseTestCase
 
 
-class WebViewIOSTests(unittest.TestCase):
-
-    def setUp(self):
-        # set up appium
-        logging.basicConfig(filename='test_' + str(datetime.datetime.utcnow()) + '.log', level=logging.INFO)
-        logging.info("Starting appium")
-        self.process = subprocess.Popen(['appium'],
-                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        sleep(10)
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        app = dir_path + '/iosapp/' + 'ApiumTest.ipa'  # for real device use .ipa, for emulator .app
-        app = os.path.abspath(app)
-        logging.info("Starting driver")
-        self.driver = webdriver.Remote(
-            command_executor='http://127.0.0.1:4723/wd/hub',
-            desired_capabilities={
-                'app': app,
-                'appName': 'AppiumTest',
-                #'deviceName': 'iPhone 6s Plus',  # emulator name
-                'deviceName': properties.iosDeviceName,  # real device name
-                'udid': properties.iosDeviceUDID,  # udid of real device
-                'platformName': 'iOS',
-                'platformVersion': '8.4'
-            })
-
-    def tearDown(self):
-        logging.info("Test Ended")
-        self.driver.quit()
-        self.process.terminate()
+class WebViewIOSTests(BaseTestCase):
 
     def test_get_url(self):
         logging.info("Finding element")

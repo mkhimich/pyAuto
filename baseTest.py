@@ -2,13 +2,19 @@ import datetime
 import getopt
 import logging
 import os
+import subprocess
 import sys
 import unittest
+from time import sleep
 
 from selenium import webdriver
 
 import properties
 import db
+
+PATH = lambda p: os.path.abspath(
+    os.path.join(os.path.dirname(__file__), p)
+)
 
 
 class BaseTestCase(unittest.TestCase):
@@ -18,8 +24,7 @@ class BaseTestCase(unittest.TestCase):
     browser_name = properties.browser
     currentResult = None
 
-    @staticmethod
-    def getDriver(browser_type):
+    def getDriver(self, browser_type):
         os_type = sys.platform
         logging.info(str(sys.argv))
         if os_type == "darwin":
@@ -48,9 +53,47 @@ class BaseTestCase(unittest.TestCase):
                 raise RuntimeError("Safari is not supported on platform " + os_name)
             driver = webdriver.Safari()
         elif browser_type == "Android":
-            driver = webdriver.Android()
+            driver = self.getAndroidDriver()
+        elif browser_type == "IOS":
+            driver = self.getIOSDriver()
         else:
             raise RuntimeError("Browser not supported")
+        return driver
+
+    def getIOSDriver(self):
+        # set up appium
+        logging.info("Starting appium for IOS")
+        path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
+        desired_caps = {}
+        desired_caps['app'] = path
+        desired_caps['appName'] ='AppiumTest'
+        desired_caps['deviceName'] = properties.iosDeviceName
+        #desired_caps['udid'] = properties.iosDeviceUDID
+        desired_caps['platformName'] = 'iOS'
+        desired_caps['platformVersion'] = '9.3'
+        logging.info("Starting driver")
+        self.process = subprocess.Popen(['appium'],
+                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sleep(10)
+        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+        return driver
+
+    def getAndroidDriver(self):
+        logging.info("Starting appium for Android")
+        path = PATH('../androidapp/ApiDemos-debug.apk')
+        desired_caps = {}
+        desired_caps['device'] = 'Android'
+        desired_caps['platformName'] = 'Android'
+        desired_caps['platformVersion'] = '4.4'
+        desired_caps['deviceName'] = 'Android'
+        desired_caps['udid'] = '5e1b87f2'
+
+        desired_caps['app'] = path
+        self.process = subprocess.Popen([
+            'appium'],
+            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sleep(10)
+        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
         return driver
 
     def getParams(self):
@@ -89,7 +132,12 @@ class BaseTestCase(unittest.TestCase):
                          result, message)
 
         logging.info('Finishing test')
-        self.driver.close()
+        self.driver.quit()
+        try:
+            self.process.terminate()
+            subprocess.Popen(['killall qemu-system-i386'], shell=True)
+        except AttributeError:
+            logging.info('Appium process terminated')
 
 
 if __name__ == "__main__":
