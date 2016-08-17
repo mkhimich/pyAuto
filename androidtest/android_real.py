@@ -11,15 +11,14 @@ PATH = lambda p: os.path.abspath(
 )
 
 
-class SimpleAndroidTests(unittest.TestCase):
+class TestSimpleAndroidTests(unittest.TestCase):
     def setUp(self):
-        path = PATH('../androidapp/ApiDemos-debug.apk')
+        path = PATH('../androidapp/keep.apk')
         desired_caps = {}
         desired_caps['device'] = 'Android'
         desired_caps['platformName'] = 'Android'
-        desired_caps['platformVersion'] = '4.4'
-        desired_caps['deviceName'] = 'Android'
-        desired_caps['udid'] = '5e1b87f2'
+        desired_caps['platformVersion'] = '6.0.1'
+        desired_caps['deviceName'] = 'Nexus 5x'
 
         desired_caps['app'] = path
         self.process = subprocess.Popen([
@@ -33,32 +32,19 @@ class SimpleAndroidTests(unittest.TestCase):
         self.driver.quit()
         self.process.terminate()
 
-    def test_find_elements(self):
-        el = self.driver.find_element_by_accessibility_id('Graphics')
-        el.click()
-        el = self.driver.find_element_by_accessibility_id('Arcs')
-        self.assertIsNotNone(el)
+    def test_caption(self):
+        el = self.driver.find_element_by_android_uiautomator("new UiSelector().text(\"Заметки\")")
 
-        self.driver.back()
+        assert el.is_displayed()
 
-        el = self.driver.find_element_by_accessibility_id("App")
-        self.assertIsNotNone(el)
+    def test_go_to_reminders(self):
+        menu = self.driver.find_element_by_android_uiautomator(
+            "new UiSelector().description(\"Открыть панель навигации\")")
+        menu.click()
 
-        els = self.driver.find_elements_by_android_uiautomator("new UiSelector().clickable(true)")
-        self.assertGreaterEqual(13, len(els))
+        reminders_menu_item = self.driver.find_element_by_id('com.google.android.keep:id/drawer_navigation_reminders')
+        reminders_menu_item.click()
 
-        self.driver.find_element_by_android_uiautomator('text("API Demos")')
+        reminders_caption = self.driver.find_element_by_android_uiautomator("new UiSelector().text(\"Напоминания\")")
 
-    def test_simple_actions(self):
-        el = self.driver.find_element_by_accessibility_id('Graphics')
-        el.click()
-
-        el = self.driver.find_element_by_accessibility_id('Arcs')
-        el.click()
-
-        self.driver.find_element_by_android_uiautomator('new UiSelector().text("Graphics/Arcs")')
-
-
-if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(SimpleAndroidTests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+        assert reminders_caption.is_displayed()

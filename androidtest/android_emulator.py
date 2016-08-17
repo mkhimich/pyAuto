@@ -13,10 +13,10 @@ PATH = lambda p: os.path.abspath(
 
 class SimpleAndroidTests(unittest.TestCase):
     def setUp(self):
-        path = PATH('../androidapp/ApiDemos-debug.apk')
+        path = PATH('../androidapp/keep.apk')
         desired_caps = {}
         desired_caps['platformName'] = 'Android'
-        desired_caps['platformVersion'] = '5.1'
+        desired_caps['platformVersion'] = '7.0'
         desired_caps['deviceName'] = 'Android Emulator'
         desired_caps['app'] = path
 
