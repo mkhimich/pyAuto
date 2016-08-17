@@ -18,15 +18,10 @@ PATH = lambda p: os.path.abspath(
 
 
 class BaseTestCase(unittest.TestCase):
-    start_time = datetime.datetime.utcnow()
-    logfile = str('test_' + str(start_time) + '.log')
-    logging.basicConfig(filename=logfile, level=logging.INFO)
-    browser_name = properties.browser
-    currentResult = None
 
     def getDriver(self, browser_type):
         os_type = sys.platform
-        logging.info(str(sys.argv))
+        self.logger.info(str(sys.argv))
         if os_type == "darwin":
             os_name = "mac"
         elif os_type == "windows":
@@ -62,7 +57,7 @@ class BaseTestCase(unittest.TestCase):
 
     def getIOSDriver(self):
         # set up appium
-        logging.info("Starting appium for IOS")
+        self.logger.info("Starting appium for IOS")
         path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
         desired_caps = {}
         desired_caps['app'] = path
@@ -71,7 +66,7 @@ class BaseTestCase(unittest.TestCase):
         # desired_caps['udid'] = properties.iosDeviceUDID
         desired_caps['platformName'] = 'iOS'
         desired_caps['platformVersion'] = '9.3'
-        logging.info("Starting driver")
+        self.logger.info("Starting driver")
         self.process = subprocess.Popen(['appium'],
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         sleep(10)
@@ -80,7 +75,7 @@ class BaseTestCase(unittest.TestCase):
         return driver
 
     def getAndroidDriver(self):
-        logging.info("Starting appium for Android")
+        self.logger.info("Starting appium for Android")
         path = PATH('androidapp/keep.apk')
         desired_caps = {}
         desired_caps['device'] = 'Android'
@@ -104,41 +99,63 @@ class BaseTestCase(unittest.TestCase):
         try:
             opts, args = getopt.getopt(argv, "b:")
         except getopt.GetoptError:
-            logging.info('no params, using browser from properties')
+            self.logger.info('no params, using browser from properties')
         for opt, arg in opts:
             if opt in "-b":
                 browser_name = arg
         if not browser_name:
             browser_name = properties.browser
-        logging.info('Selected browser is ' + browser_name)
+            self.logger.info('Selected browser is ' + browser_name)
         return browser_name
 
-    # def run(self, result=None):
-    #     self.currentResult = result  # remember result for use in tearDown
-    #     unittest.TestCase.run(self, result)  # call superclass run method
+    def run(self, result=None):
+        self.currentResult = result  # remember result for use in tearDown
+        unittest.TestCase.run(self, result)  # call superclass run method
 
-    def setup_method(self, method):
-        logging.info('Getting webdriver')
+    def setupLogger(self):
+        logfile = str('test_' + str(self.start_time) + '.log')
+        logging.basicConfig(filename=logfile, level=logging.INFO)
+        logger = logging.getLogger('simple_example')
+        logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        self.browser_name = properties.browser
+        self.currentResult = None
+        return logger
+
+    def setUp(self):
+        self.start_time = datetime.datetime.utcnow()
+        self.logger = self.setupLogger()
+        self.logger.info('Getting webdriver')
         self.driver = self.getDriver(self.getParams())
 
-    def teardown_method(self, method):
-        # errors = self.
-        # failures = self.currentResult.failures
-        # if (len(errors) == 0) & (len(failures) == 0):
-        #     result = "passed"
-        # else:
-        #     result = "failed"
-        # message = str(errors) + "\n" + str(failures)
-        # db.insert_result(self._testMethodName, self.browser_name, self.start_time,
-        #                  result, message)
+    def tearDown(self):
+        try:
+            errors = self.currentResult.errors
+        except AttributeError:
+            errors = ''
+        try:
+            failures = self.currentResult.failures
+        except AttributeError:
+            failures = ''
+        if (len(errors) == 0) & (len(failures) == 0):
+            result = "passed"
+        else:
+            result = "failed"
+        message = str(errors) + "\n" + str(failures)
+        db.insert_result(self._testMethodName, self.browser_name, self.start_time,
+                         result, message)
 
-        logging.info('Finishing test')
+        self.logger.info('Finishing test')
         self.driver.quit()
         try:
             self.process.terminate()
             subprocess.Popen(['killall qemu-system-i386'], shell=True)
         except AttributeError:
-            logging.info('Appium process terminated')
+            self.logger.info('Appium process terminated')
 
 
 if __name__ == "__main__":
