@@ -20,7 +20,7 @@ class WebViewIOSTests(BaseTestCase):
             '//UIAApplication[1]/UIAWindow[1]/UIATableView[1]/UIATableCell[1]/UIAStaticText[1]')
         added_time = str(added_el.get_attribute("value"))
         logging.info("Comparing Time")
-        self.assertEquals(current_time, added_time, "Time is incorrect, expected:" + current_time + " but was " + added_time)
+        assert current_time == added_time, "Time is incorrect, expected:" + current_time + " but was " + added_time
 
 
 if __name__ == '__main__':

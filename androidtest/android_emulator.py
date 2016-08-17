@@ -9,15 +9,15 @@ class SimpleAndroidTests(BaseTestCase):
         el = self.driver.find_element_by_accessibility_id('Graphics')
         el.click()
         el = self.driver.find_element_by_accessibility_id('Arcs')
-        self.assertIsNotNone(el)
+        assert el is not None
 
         self.driver.back()
 
         el = self.driver.find_element_by_accessibility_id("App")
-        self.assertIsNotNone(el)
+        assert el is not None
 
         els = self.driver.find_elements_by_android_uiautomator("new UiSelector().clickable(true)")
-        self.assertGreaterEqual(12, len(els))
+        assert 12 >= len(els)
 
         self.driver.find_element_by_android_uiautomator('text("API Demos")')
 
