@@ -4,7 +4,7 @@ import unittest
 from selenium.webdriver.common.keys import Keys
 
 import page
-from BaseTest import BaseTestCase
+from baseTest import BaseTestCase
 
 
 class PythonOrgSearch(BaseTestCase):

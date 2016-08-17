@@ -2,24 +2,29 @@ import datetime
 import getopt
 import logging
 import os
+import subprocess
 import sys
 import unittest
+from time import sleep
 
 from selenium import webdriver
 
-import Properties
+import properties
 import db
+
+PATH = lambda p: os.path.abspath(
+    os.path.join(os.path.dirname(__file__), p)
+)
 
 
 class BaseTestCase(unittest.TestCase):
     start_time = datetime.datetime.utcnow()
     logfile = str('test_' + str(start_time) + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO)
-    browser_name = Properties.browser
+    browser_name = properties.browser
     currentResult = None
 
-    @staticmethod
-    def getDriver(browser_type):
+    def getDriver(self, browser_type):
         os_type = sys.platform
         logging.info(str(sys.argv))
         if os_type == "darwin":
@@ -48,12 +53,51 @@ class BaseTestCase(unittest.TestCase):
                 raise RuntimeError("Safari is not supported on platform " + os_name)
             driver = webdriver.Safari()
         elif browser_type == "Android":
-            driver = webdriver.Android()
+            driver = self.getAndroidDriver()
+        elif browser_type == "IOS":
+            driver = self.getIOSDriver()
         else:
             raise RuntimeError("Browser not supported")
         return driver
 
+    def getIOSDriver(self):
+        # set up appium
+        logging.info("Starting appium for IOS")
+        path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
+        desired_caps = {}
+        desired_caps['app'] = path
+        desired_caps['appName'] ='AppiumTest'
+        desired_caps['deviceName'] = properties.iosDeviceName
+        #desired_caps['udid'] = properties.iosDeviceUDID
+        desired_caps['platformName'] = 'iOS'
+        desired_caps['platformVersion'] = '9.3'
+        logging.info("Starting driver")
+        self.process = subprocess.Popen(['appium'],
+                                        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sleep(10)
+        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+        return driver
+
+    def getAndroidDriver(self):
+        logging.info("Starting appium for Android")
+        path = PATH('../androidapp/ApiDemos-debug.apk')
+        desired_caps = {}
+        desired_caps['device'] = 'Android'
+        desired_caps['platformName'] = 'Android'
+        desired_caps['platformVersion'] = '4.4'
+        desired_caps['deviceName'] = 'Android'
+        desired_caps['udid'] = '5e1b87f2'
+
+        desired_caps['app'] = path
+        self.process = subprocess.Popen([
+            'appium'],
+            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sleep(10)
+        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+        return driver
+
     def getParams(self):
+        opts = ''
         argv = sys.argv[1:]
         browser_name = ''
         try:
@@ -63,6 +107,8 @@ class BaseTestCase(unittest.TestCase):
         for opt, arg in opts:
             if opt in "-b":
                 browser_name = arg
+        if not browser_name:
+            browser_name = properties.browser
         logging.info('Selected browser is ' + browser_name)
         return browser_name
 
@@ -75,10 +121,9 @@ class BaseTestCase(unittest.TestCase):
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
-        ok = self.currentResult.wasSuccessful()
         errors = self.currentResult.errors
         failures = self.currentResult.failures
-        if ok:
+        if (len(errors) == 0) & (len(failures) == 0):
             result = "passed"
         else:
             result = "failed"
@@ -87,7 +132,12 @@ class BaseTestCase(unittest.TestCase):
                          result, message)
 
         logging.info('Finishing test')
-        self.driver.close()
+        self.driver.quit()
+        try:
+            self.process.terminate()
+            subprocess.Popen(['killall qemu-system-i386'], shell=True)
+        except AttributeError:
+            logging.info('Appium process terminated')
 
 
 if __name__ == "__main__":

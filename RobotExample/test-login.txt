@@ -1,0 +1,22 @@
+*** Settings ***
+Library         Selenium2Library
+Suite Setup     Go to homepage
+Suite Teardown  Close All Browsers
+
+*** Variables ***
+${HOMEPAGE}     http://10.129.140.95:3000/
+${BROWSER}      chrome
+
+*** Test Cases ***
+Google devops and find eficode
+    Google and check results    devops      Hello, devops!
+
+*** Keywords ***
+Google and check results
+    [Arguments]     ${searchkey}    ${results}
+    Input Text      id=username_input        ${searchkey}
+    Click Button    id=submit_button
+    Wait Until Page Contains        ${results}
+
+Go to homepage
+    Open Browser    ${HOMEPAGE}     ${BROWSER}
