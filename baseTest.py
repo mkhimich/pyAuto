@@ -18,10 +18,6 @@ PATH = lambda p: os.path.abspath(
 
 
 class BaseTestCase(unittest.TestCase):
-    def __init__(self, methodName = 'runTest'):
-        unittest.TestCase.__init__(self, methodName)
-        self.start_time = datetime.datetime.utcnow()
-        self.logger = self.setupLogger()
 
     def getDriver(self, browser_type):
         os_type = sys.platform
@@ -130,12 +126,20 @@ class BaseTestCase(unittest.TestCase):
         return logger
 
     def setUp(self):
+        self.start_time = datetime.datetime.utcnow()
+        self.logger = self.setupLogger()
         self.logger.info('Getting webdriver')
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
-        errors = self.currentResult.errors
-        failures = self.currentResult.failures
+        try:
+            errors = self.currentResult.errors
+        except AttributeError:
+            errors = ''
+        try:
+            failures = self.currentResult.failures
+        except AttributeError:
+            failures = ''
         if (len(errors) == 0) & (len(failures) == 0):
             result = "passed"
         else:
