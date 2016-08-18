@@ -1,11 +1,11 @@
 # coding=utf-8
-import unittest
-
 import pytest
 from selenium.webdriver.common.keys import Keys
 
 import page
 import properties
+import time
+from time import sleep
 from basetest import BaseTestCase
 
 
@@ -20,6 +20,7 @@ class PythonOrgSearch(BaseTestCase):
         Note that it does not look for any particular text in search results page. This test verifies that
         the results were not empty.
         """
+        print("Start 1 " + str(time.localtime()))
         self.driver.get("https://10.129.140.24/")
         # Load the main page.
         main_page = page.MainPage(self.driver)
@@ -31,13 +32,20 @@ class PythonOrgSearch(BaseTestCase):
         search_results_page = main_page.SearchResultsPage(self.driver)
         # Verifies that the results page is not empty
         assert search_results_page.is_results_found(), "Some results found."
+        sleep(20)
+        print("End 1 " + str(time.localtime()))
 
     @pytest.mark.skip(reason="no way of currently testing this")
     def test_my_skipped_test(self):
         self.driver.get("https://10.129.140.24/")
 
-    @pytest.mark.skipif(not properties.suite == 'regression',
+
+class SecondTest(BaseTestCase):
+    @pytest.mark.skipif(not properties.suite == 'smoke',
                         reason="incorrect suite")
     def test_my_grouped(self):
-        self.driver.get()
+        print("Start 2 " + str(time.localtime()))
+        self.driver.get("https://10.129.140.24/")
+        sleep(20)
+        print("End 2 " + str(time.localtime()))
 
