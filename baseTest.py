@@ -132,14 +132,14 @@ class BaseTestCase(unittest.TestCase):
         self.driver = self.getDriver(self.getParams())
 
     def tearDown(self):
-        try:
-            errors = self.currentResult.errors
-        except AttributeError:
+        if not hasattr(self.currentResult, 'errors'):
             errors = ''
-        try:
-            failures = self.currentResult.failures
-        except AttributeError:
+        else:
+            errors = self.currentResult.errors
+        if not hasattr(self.currentResult, 'failures'):
             failures = ''
+        else:
+            failures = self.currentResult.failures
         if (len(errors) == 0) & (len(failures) == 0):
             result = "passed"
         else:

@@ -1,6 +1,7 @@
 # coding=utf-8
 import unittest
 
+import pytest
 from selenium.webdriver.common.keys import Keys
 
 import page
@@ -27,4 +28,8 @@ class PythonOrgSearch(BaseTestCase):
         search_results_page = main_page.SearchResultsPage(self.driver)
         # Verifies that the results page is not empty
         assert search_results_page.is_results_found(), "Some results found."
+
+    @pytest.mark.skip(reason="no way of currently testing this")
+    def test_my_skipped_test(self):
+        self.driver.get("https://10.129.140.24/")
 
