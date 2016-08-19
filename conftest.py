@@ -134,6 +134,26 @@ def setup_logger(start_time):
     return logger
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    rep = outcome.get_result()
+
+    # we only look at actual failing test calls, not setup/teardown
+    if rep.when == "call":
+        mode = "a" if os.path.exists("failures") else "w"
+        with open("failures", mode) as f:
+            # let's also access a fixture for the fun of it
+            if "tmpdir" in item.fixturenames:
+                extra = " (%s)" % item.funcargs["tmpdir"]
+            else:
+                extra = ""
+
+            f.write('Test in suite ' + rep.nodeid + ' has failed' + extra + "\n")
+            #db.insert_result(rep.nodeid, properties.browser_name, '', 'failed', extra)
+
+
 @pytest.fixture()
 def setup(request):
     start_time = datetime.datetime.utcnow()
