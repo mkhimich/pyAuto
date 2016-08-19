@@ -21,6 +21,8 @@ def test_search_in_spice_web(setup):
     setup.driver.get("https://10.129.140.24/")
     # Load the main page.
     main_page = page.MainPage(setup.driver)
+
+    setup.driver.find_element_by_id("//aasd")
     # Checks if the word "Спайсы" is in title
     assert main_page.is_title_matches(), "title doesn't match."
     # Click page example button
@@ -43,5 +45,5 @@ def test_my_skipped_test(setup):
 def test_my_grouped(setup):
     print("Start 2 " + str(time.localtime()))
     setup.driver.get("https://10.129.140.24/")
-    sleep(20)
+    sleep(0)
     print("End 2 " + str(time.localtime()))

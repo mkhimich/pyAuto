@@ -138,25 +138,25 @@ def setup_logger(start_time):
 def setup(request):
     start_time = datetime.datetime.utcnow()
     logger = setup_logger(start_time)
-    factory = PageFactory(get_driver(logger, get_params(logger)), logger)
+    browser_name = get_params(logger)
+    factory = PageFactory(get_driver(logger, browser_name), logger)
     logger.info('Getting webdriver')
 
     def tear_down():
-        # if not hasattr(factory.currentResult, 'errors'):
-        #     errors = ''
-        # else:
-        #     errors = factory.currentResult.errors
-        # if not hasattr(factory.currentResult, 'failures'):
-        #     failures = ''
-        # else:
-        #     failures = factory.currentResult.failures
-        # if (len(errors) == 0) & (len(failures) == 0):
-        #     result = "passed"
-        # else:
-        #     result = "failed"
-        # message = str(errors) + "\n" + str(failures)
-        # db.insert_result(factory._testMethodName, factory.browser_name, factory.start_time,
-        #                  result, message)
+        result = "passed"
+        message = ""
+        if request.node.rep_setup.failed:
+            print("setting up a test failed!", request.node.nodeid)
+            result = "failed"
+            message = request.node.rep_setup.longrepr.reprcrash.message
+        elif request.node.rep_setup.passed:
+            if request.node.rep_call.failed:
+                print("executing test failed", request.node.nodeid)
+                result = "failed"
+                message = request.node.rep_call.longrepr.reprcrash.message
+
+        db.insert_result(request.node.nodeid, browser_name, start_time,
+                         result, message)
 
         factory.logger.info('Finishing test')
         factory.driver.quit()
@@ -169,3 +169,15 @@ def setup(request):
     request.addfinalizer(tear_down)
 
     return factory
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    rep = outcome.get_result()
+
+    # set an report attribute for each phase of a call, which can
+    # be "setup", "call", "teardown"
+
+    setattr(item, "rep_" + rep.when, rep)
