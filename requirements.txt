@@ -4,5 +4,5 @@ py==1.4.31
 pytest==2.9.0
 selenium==3.0.0b2
 Appium-Python-Client==0.22
-flaky=3.3.0
-pytest-timeout=1.0.0
+flaky==3.3.0
+pytest-timeout==1.0.0
