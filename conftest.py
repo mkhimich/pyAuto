@@ -140,6 +140,7 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
 
+    setattr(item, "rep_" + rep.when, rep)
     # we only look at actual failing test calls, not setup/teardown
     if rep.when == "call":
         mode = "a" if os.path.exists("failures") else "w"
