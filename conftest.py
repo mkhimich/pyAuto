@@ -8,6 +8,7 @@ import pytest
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 import properties
 import db
@@ -33,6 +34,10 @@ class PageFactory(object):
     def get_google_password_page(self):
         from webtest.pages.google_login_pages import GooglePasswordPage
         return GooglePasswordPage(self)
+
+    def get_notes_page(self):
+        from webtest.pages.keep_pages import NotesPage
+        return NotesPage(self)
 
 
 def get_driver(logger, browser_type):
@@ -69,6 +74,7 @@ def get_driver(logger, browser_type):
         driver = get_ios_driver(logger)
     else:
         raise RuntimeError("Browser not supported")
+    driver.implicitly_wait(properties.implicit_wait)
     return driver
 
 
@@ -174,6 +180,7 @@ def setup(request):
     browser_name = get_params(logger)
     factory = PageFactory(get_driver(logger, browser_name), logger)
     logger.info('Getting webdriver')
+    factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
         factory.driver.quit()
