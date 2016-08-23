@@ -39,6 +39,10 @@ class PageFactory(object):
         from webtest.pages.keep_pages import NotesPage
         return NotesPage(self)
 
+    def get_edit_labels_dialog(self):
+        from webtest.pages.keep_pages import EditLabelsDialog
+        return EditLabelsDialog(self)
+
 
 def get_driver(logger, browser_type):
     os_type = sys.platform
