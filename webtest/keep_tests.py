@@ -20,3 +20,11 @@ def test_input_password(setup):
     notes_page = password_page.input_password_and_submit(properties.app_password)
 
     assert notes_page.is_displayed()
+
+
+def test_add_label_menu_item_present(setup):
+    login_page = setup.get_first_page()
+    password_page = login_page.input_login_and_next(properties.app_login)
+    notes_page = password_page.input_password_and_submit(properties.app_password)
+
+    assert notes_page.get_create_new_label_menu_item().is_displayed()
