@@ -81,19 +81,12 @@ def get_driver(logger, browser_type):
 def get_ios_driver(logger):
     # set up appium
     logger.info("Starting appium for IOS")
-    path = PATH('../pyAuto/iosapp/CardDecks.app')  # for real device use .ipa, for emulator .app
-    desired_caps = {'app': path,
-                    'appName': 'CardDecks',
-                    'deviceName': properties.iosDeviceName,
-                    'platformName': 'iOS',
-                    'platformVersion': '9.3'}
-    # desired_caps['udid'] = properties.iosDeviceUDID
     logger.info("Starting driver")
     # self.process = subprocess.Popen(['appium'],
     #                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # sleep(10)
     from appium import webdriver
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', properties.ios_desired_caps)
     return driver
 
 
@@ -140,7 +133,7 @@ def get_params(logger):
 def setup_logger(start_time):
     logfile = str('test_' + str(start_time) + '.log')
     logging.basicConfig(filename=logfile, level=logging.INFO)
-    logger = logging.getLogger('simple_example')
+    logger = logging.getLogger('Glorious Testing Framework')
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
