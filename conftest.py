@@ -8,6 +8,7 @@ import pytest
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
 
 import properties
 import db
@@ -21,6 +22,22 @@ class PageFactory(object):
     def __init__(self, driver, logger):
         self.driver = driver
         self.logger = logger
+
+    def get_first_page(self):
+        self.driver.get(properties.app_url)
+        return self.get_google_login_page()
+
+    def get_google_login_page(self):
+        from webtest.pages.google_login_pages import GoogleLoginPage
+        return GoogleLoginPage(self)
+
+    def get_google_password_page(self):
+        from webtest.pages.google_login_pages import GooglePasswordPage
+        return GooglePasswordPage(self)
+
+    def get_notes_page(self):
+        from webtest.pages.keep_pages import NotesPage
+        return NotesPage(self)
 
 
 def get_driver(logger, browser_type):
@@ -57,6 +74,7 @@ def get_driver(logger, browser_type):
         driver = get_ios_driver(logger)
     else:
         raise RuntimeError("Browser not supported")
+    driver.implicitly_wait(properties.implicit_wait)
     return driver
 
 
@@ -152,7 +170,7 @@ def pytest_runtest_makereport(item, call):
                 extra = ""
 
             f.write('Test in suite ' + rep.nodeid + ' has failed' + extra + "\n")
-            #db.insert_result(rep.nodeid, properties.browser_name, '', 'failed', extra)
+            # db.insert_result(rep.nodeid, properties.browser_name, '', 'failed', extra)
 
 
 @pytest.fixture()
@@ -162,8 +180,10 @@ def setup(request):
     browser_name = get_params(logger)
     factory = PageFactory(get_driver(logger, browser_name), logger)
     logger.info('Getting webdriver')
+    factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
+        factory.driver.quit()
         result = "passed"
         message = ""
         if request.node.rep_setup.failed:
@@ -175,12 +195,13 @@ def setup(request):
                 print("executing test failed", request.node.nodeid)
                 result = "failed"
                 message = request.node.rep_call.longrepr.reprcrash.message
-
-        db.insert_result(request.node.nodeid, browser_name, start_time,
-                         result, message)
+        try:
+            db.insert_result(request.node.nodeid, browser_name, start_time,
+                             result, message)
+        except db.DatabaseError as e:
+            logger.error("Failed to log to db with exception " + str(e))
 
         factory.logger.info('Finishing test')
-        factory.driver.quit()
         # try:
         #     factory.process.terminate()
         #     subprocess.Popen(['killall qemu-system-i386'], shell=True)
