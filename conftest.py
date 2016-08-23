@@ -12,6 +12,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import properties
 import db
+import soft_assert
 
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
@@ -22,6 +23,7 @@ class PageFactory(object):
     def __init__(self, driver, logger):
         self.driver = driver
         self.logger = logger
+        self.soft_assert = soft_assert.SoftAssert(self.driver, self.logger)
 
     def get_first_page(self):
         self.driver.get(properties.app_url)
@@ -154,6 +156,7 @@ def pytest_runtest_makereport(item, call):
     setattr(item, "rep_" + rep.when, rep)
     # we only look at actual failing test calls, not setup/teardown
     if rep.when == "call":
+        rep.outcome = str(item.funcargs['setup'].soft_assert.collect_results().get(0))
         mode = "a" if os.path.exists("failures") else "w"
         with open("failures", mode) as f:
             # let's also access a fixture for the fun of it
@@ -187,7 +190,7 @@ def setup(request):
             if request.node.rep_call.failed:
                 print("executing test failed", request.node.nodeid)
                 result = "failed"
-                message = request.node.rep_call.longrepr.reprcrash.message
+                message = factory.soft_assert.collect_results()
         try:
             db.insert_result(request.node.nodeid, browser_name, start_time,
                              result, message)
