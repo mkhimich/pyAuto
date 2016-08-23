@@ -81,9 +81,9 @@ def get_driver(logger, browser_type):
 def get_ios_driver(logger):
     # set up appium
     logger.info("Starting appium for IOS")
-    path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
+    path = PATH('../pyAuto/iosapp/CardDecks.app')  # for real device use .ipa, for emulator .app
     desired_caps = {'app': path,
-                    'appName': 'AppiumTest',
+                    'appName': 'CardDecks',
                     'deviceName': properties.iosDeviceName,
                     'platformName': 'iOS',
                     'platformVersion': '9.3'}
