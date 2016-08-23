@@ -8,7 +8,7 @@ def test_landing(setup):
     by = setup.driver.find_element_by_xpath
     release_text = by(app_locators.text_release_notes)
     setup.soft_assert.assert_equals("Caption on landing page is incorrect", release_text.get_attribute("name"),
-                                    "some shit Notes")
+                                    "Release Notes")
 
 
 def test_landing_on_main_page(setup):

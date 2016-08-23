@@ -88,7 +88,7 @@ def get_ios_driver(logger):
     #                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # sleep(10)
     from appium import webdriver
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', properties.ios_desired_caps)
+    driver = webdriver.Remote('http://10.129.140.95:4723/wd/hub', properties.ios_desired_caps)
     return driver
 
 
