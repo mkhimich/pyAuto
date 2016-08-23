@@ -12,6 +12,8 @@ class LandPage(BasePage):
     def get_create_new_label_menu_item(self):
         return Button(self.factory.driver.find_element_by_xpath("//*[text()='Create new label']"))
 
+
 class NotesPage(LandPage):
     def is_displayed(self):
-        return self.wait_if_element_visible(self.factory.driver.find_element_by_xpath("//span[@class='gb_wc'][text()='Notes']"))
+        return self.wait_if_element_visible(
+            self.factory.driver.find_element_by_xpath("//span[@class='gb_wc'][text()='Notes']"))
