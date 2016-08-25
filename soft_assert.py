@@ -1,3 +1,4 @@
+import allure
 import pytest
 import logging
 
@@ -18,6 +19,7 @@ class SoftAssert:
             self.logger.warning(e)
             self.failure_count += 1
             self.report[self.failure_count] = e
+            allure.attach(e)
 
     def assert_equals(self, message, actual, expected):
         try:
@@ -28,6 +30,7 @@ class SoftAssert:
             self.logger.warning(e)
             self.failure_count += 1
             self.report[self.failure_count] = e
+            allure.attach(e)
 
     def collect_results(self):
         if self.failure_count == 0:
