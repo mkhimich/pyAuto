@@ -15,3 +15,10 @@ class BasePage(object):
             return True
         except TimeoutException:
             return False
+
+    def wait_if_element_present(self, by):
+        try:
+            self.factory.wait.until(expected_conditions.presence_of_element_located(by))
+            return True
+        except TimeoutException:
+            return False
