@@ -13,6 +13,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 import properties
 import db
 
+SCREENSHOTS = "screenshots"
+
 FAILED = "failed"
 
 PATH = lambda p: os.path.abspath(
@@ -202,13 +204,11 @@ def setup(request):
                 message = request.node.rep_call.longrepr.reprcrash.message
 
         if result == FAILED:
-            if not factory.driver.get_screenshot_as_file("/Users/skim/source/pyAuto/screenshots/"
+            if not factory.driver.get_screenshot_as_file("SCREENSHOTS" + "/"
                                                                  + request.node.nodeid.replace("/", "..")
                                                                  + "_"
                                                                  + str(start_time) + ".png"):
-
                 logger.warn("Couldn't take a screenshot for " + request.node.nodeid)
-                print("AAAAAAAAAAA")
 
         factory.driver.quit()
 
@@ -228,3 +228,11 @@ def setup(request):
     request.addfinalizer(tear_down)
 
     return factory
+
+
+@pytest.fixture(autouse=True, scope="session")
+def before_suite():
+    try:
+        os.mkdir(SCREENSHOTS)
+    except OSError as e:
+        print(SCREENSHOTS + " folder was not created because of " + str(e))
