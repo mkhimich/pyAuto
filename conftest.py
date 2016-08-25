@@ -207,7 +207,8 @@ def setup(request):
                                                                  + "_"
                                                                  + str(start_time) + ".png"):
 
-                logger.warn("Couldn' take a screenshot for " + request.node.nodeid)
+                logger.warn("Couldn't take a screenshot for " + request.node.nodeid)
+                print("AAAAAAAAAAA")
 
         factory.driver.quit()
 
