@@ -13,6 +13,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 import properties
 import db
 
+FAILED = "failed"
+
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
 )
@@ -142,8 +144,8 @@ def get_params(logger):
 
 
 def setup_logger(start_time):
-    logfile = str('test_' + str(start_time) + '.log')
-    logging.basicConfig(filename=logfile, level=logging.INFO)
+    # logfile = str('test_' + str(start_time) + '.log')
+    # logging.basicConfig(filename=logfile, level=logging.INFO)
     logger = logging.getLogger('simple_example')
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
@@ -187,18 +189,28 @@ def setup(request):
     factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
-        factory.driver.quit()
         result = "passed"
         message = ""
         if request.node.rep_setup.failed:
             print("setting up a test failed!", request.node.nodeid)
-            result = "failed"
+            result = FAILED
             message = request.node.rep_setup.longrepr.reprcrash.message
         elif request.node.rep_setup.passed:
             if request.node.rep_call.failed:
                 print("executing test failed", request.node.nodeid)
-                result = "failed"
+                result = FAILED
                 message = request.node.rep_call.longrepr.reprcrash.message
+
+        if result == FAILED:
+            if not factory.driver.get_screenshot_as_file("/Users/skim/source/pyAuto/screenshots/"
+                                                                 + request.node.nodeid.replace("/", "..")
+                                                                 + "_"
+                                                                 + str(start_time) + ".png"):
+
+                logger.warn("Couldn' take a screenshot for " + request.node.nodeid)
+
+        factory.driver.quit()
+
         try:
             db.insert_result(request.node.nodeid, browser_name, start_time,
                              result, message)
