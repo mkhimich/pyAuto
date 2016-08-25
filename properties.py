@@ -18,7 +18,7 @@ app_password = str('testmykip')
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
 )
-ios_desired_caps = {'app': PATH('../../iosapp/CardDecks.app'),
+ios_desired_caps = {'app': PATH('iosapp/CardDecks.app'),
                     'appName': 'CardDecks',
                     'deviceName': properties.iosDeviceName,
                     'platformName': 'iOS',
