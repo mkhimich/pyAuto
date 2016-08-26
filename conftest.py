@@ -160,15 +160,20 @@ def setup_logger(start_time):
     return logger
 
 
+@pytest.mark.hookwrapper
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
+    pytest_html = item.config.pluginmanager.getplugin('html')
     outcome = yield
     rep = outcome.get_result()
-
+    extra = getattr(rep, 'extra', [])
     setattr(item, "rep_" + rep.when, rep)
     # we only look at actual failing test calls, not setup/teardown
     if rep.when == "call":
+        extra.append(pytest_html.extras.image(item.funcargs['setup'].driver.get_screenshot_as_base64()))
+        rep.extra = extra  # adds screenshot to the report
+
         mode = "a" if os.path.exists("failures") else "w"
         with open("failures", mode) as f:
             # let's also access a fixture for the fun of it
@@ -244,7 +249,7 @@ def before_suite():
 
     from selenium.webdriver.common.by import By
 
-    #Monkey patching is real!
+    # Monkey patching is real!
 
     original_find_element = selenium.webdriver.remote.webdriver.WebDriver.find_element
 
