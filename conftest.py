@@ -90,8 +90,8 @@ def get_driver(browser_type):
 
 def get_ios_driver():
     # set up appium
-    logger.info("Starting appium for IOS")
-    logger.info("Starting driver")
+    logging.info("Starting appium for IOS")
+    logging.info("Starting driver")
     # self.process = subprocess.Popen(['appium'],
     #                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # sleep(10)
