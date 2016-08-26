@@ -186,8 +186,8 @@ def setup(request):
     start_time = datetime.datetime.utcnow()
     logger = setup_logger(start_time)
     browser_name = get_params()
+    logging.info('Getting driver')
     factory = PageFactory(get_driver(browser_name), logger)
-    logging.info('Getting webdriver')
     factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
@@ -218,7 +218,7 @@ def setup(request):
         except db.DatabaseError as e:
             logger.error("Failed to log to db with exception " + str(e))
 
-        factory.logger.info('Finishing test')
+        logging.info('Finishing test')
         # try:
         #     factory.process.terminate()
         #     subprocess.Popen(['killall qemu-system-i386'], shell=True)
