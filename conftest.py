@@ -48,9 +48,9 @@ class PageFactory(object):
         return EditLabelsDialog(self)
 
 
-def get_driver(logger, browser_type):
+def get_driver(browser_type):
     os_type = sys.platform
-    logger.info(str(sys.argv))
+    logging.info(str(sys.argv))
     if os_type == "darwin":
         os_name = "mac"
     elif os_type == "windows":
@@ -77,18 +77,18 @@ def get_driver(logger, browser_type):
             raise RuntimeError("Safari is not supported on platform " + os_name)
         driver = webdriver.Safari()
     elif browser_type == "Android":
-        driver = get_android_driver(logger)
+        driver = get_android_driver()
     elif browser_type == "IOS":
-        driver = get_ios_driver(logger)
+        driver = get_ios_driver()
     else:
         raise RuntimeError("Browser not supported")
     driver.implicitly_wait(properties.implicit_wait)
     return driver
 
 
-def get_ios_driver(logger):
+def get_ios_driver():
     # set up appium
-    logger.info("Starting appium for IOS")
+    logging.info("Starting appium for IOS")
     path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
     desired_caps = {'app': path,
                     'appName': 'AppiumTest',
@@ -96,7 +96,7 @@ def get_ios_driver(logger):
                     'platformName': 'iOS',
                     'platformVersion': '9.3'}
     # desired_caps['udid'] = properties.iosDeviceUDID
-    logger.info("Starting driver")
+    logging.info("Starting driver")
     # self.process = subprocess.Popen(['appium'],
     #                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # sleep(10)
@@ -105,15 +105,15 @@ def get_ios_driver(logger):
     return driver
 
 
-def get_android_driver(logger):
-    logger.info("Starting appium for Android")
+def get_android_driver():
+    logging.info("Starting appium for Android")
     path = PATH('androidapp/keep.apk')
     desired_caps = {'device': 'Android',
                     'platformName': 'Android',
                     'platformVersion': '6.0.1',
                     'deviceName': 'Android',
                     'app': path}
-
+    logging.info("Starting driver")
     # self.process = subprocess.Popen([
     #     'appium'],
     #     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -123,20 +123,20 @@ def get_android_driver(logger):
     return driver
 
 
-def get_params(logger):
+def get_params():
     opts = ''
     argv = sys.argv[1:]
     browser_name = ''
     try:
         opts, args = getopt.getopt(argv, "b:")
     except getopt.GetoptError:
-        logger.info('no params, using browser from properties')
+        logging.info('no params, using browser from properties')
     for opt, arg in opts:
         if opt in "-b":
             browser_name = arg
     if not browser_name:
         browser_name = properties.browser
-        logger.info('Selected browser is ' + browser_name)
+        logging.info('Selected browser is ' + browser_name)
     return browser_name
 
 
@@ -148,7 +148,7 @@ def get_params(logger):
 def setup_logger(start_time):
     # logfile = str('test_' + str(start_time) + '.log')
     # logging.basicConfig(filename=logfile, level=logging.INFO)
-    logger = logging.getLogger('simple_example')
+    logger = logging.getLogger('DSL logger')
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
@@ -185,9 +185,9 @@ def pytest_runtest_makereport(item, call):
 def setup(request):
     start_time = datetime.datetime.utcnow()
     logger = setup_logger(start_time)
-    browser_name = get_params(logger)
-    factory = PageFactory(get_driver(logger, browser_name), logger)
-    logger.info('Getting webdriver')
+    browser_name = get_params()
+    factory = PageFactory(get_driver(browser_name), logger)
+    logging.info('Getting webdriver')
     factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
@@ -232,7 +232,28 @@ def setup(request):
 
 @pytest.fixture(autouse=True, scope="session")
 def before_suite():
+    """This is launched before all the tests"""
     try:
         os.mkdir(SCREENSHOTS)
     except OSError as e:
         print(SCREENSHOTS + " folder was not created because of " + str(e))
+
+    import selenium
+
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    from selenium.webdriver.common.by import By
+
+    original_find_element = selenium.webdriver.remote.webdriver.WebDriver.find_element
+
+    def find_element_with_logging(self, by=By.ID, value=None):
+        selector = str(by) + " :: " + value
+        logging.info("Looking for element by ___ " + selector)
+
+        element = original_find_element(self, by, value)
+
+        setattr(element, "selector", selector)
+
+        return element
+
+    selenium.webdriver.remote.webdriver.WebDriver.find_element = find_element_with_logging
