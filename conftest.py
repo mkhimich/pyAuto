@@ -244,6 +244,8 @@ def before_suite():
 
     from selenium.webdriver.common.by import By
 
+    #Monkey patching is real!
+
     original_find_element = selenium.webdriver.remote.webdriver.WebDriver.find_element
 
     def find_element_with_logging(self, by=By.ID, value=None):
