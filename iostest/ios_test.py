@@ -1,18 +1,27 @@
-import datetime
 import logging
 
-from time import sleep
+
+from iostest import app_locators
 
 
-def test_get_url(setup):
+def test_landing(setup):
     logging.info("Finding element")
-    add_el = setup.driver.find_element_by_xpath('//UIAApplication[1]/UIAWindow[1]/UIANavigationBar[1]/UIAButton[3]')
-    add_el.click()
-    current_time = str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S +0000"))
-    logging.info("Current time" + current_time)
-    sleep(1)
-    added_el = setup.driver.find_element_by_xpath(
-        '//UIAApplication[1]/UIAWindow[1]/UIATableView[1]/UIATableCell[1]/UIAStaticText[1]')
-    added_time = str(added_el.get_attribute("value"))
-    logging.info("Comparing Time")
-    assert current_time == added_time, "Time is incorrect, expected:" + current_time + " but was " + added_time
+    by = setup.driver.find_element_by_xpath
+    release_text = by(app_locators.text_release_notes)
+    setup.soft_assert.assert_equals("Caption on landing page is incorrect", release_text.get_attribute("name"),
+                                    "Release Notes")
+
+
+def test_landing_on_main_page(setup):
+    logging.info("Finding element")
+    by = setup.driver.find_element_by_xpath
+    release_text = by(app_locators.text_release_notes)
+    setup.soft_assert.assert_equals("Caption on landing page is incorrect", release_text.get_attribute("name"),
+                                    "Release Notes")
+    button_done = by(app_locators.button_done)
+    logging.info("Clicking Done for release notes")
+    button_done.click()
+
+    main_text = by(app_locators.text_main_view)
+    setup.soft_assert.assert_equals("Caption on main page is incorrect", main_text.get_attribute("name"),
+                                    "Card Decks")

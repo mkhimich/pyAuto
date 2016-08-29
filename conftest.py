@@ -12,6 +12,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import properties
 import db
+import soft_assert
 
 SCREENSHOTS = "screenshots"
 
@@ -26,6 +27,7 @@ class PageFactory(object):
     def __init__(self, driver, logger):
         self.driver = driver
         self.logger = logger
+        self.soft_assert = soft_assert.SoftAssert(self.driver, self.logger)
 
     def get_first_page(self):
         self.driver.get(properties.app_url)
@@ -89,19 +91,12 @@ def get_driver(browser_type):
 def get_ios_driver():
     # set up appium
     logging.info("Starting appium for IOS")
-    path = PATH('../pyAuto/iosapp/ApiumTest.ipa')  # for real device use .ipa, for emulator .app
-    desired_caps = {'app': path,
-                    'appName': 'AppiumTest',
-                    'deviceName': properties.iosDeviceName,
-                    'platformName': 'iOS',
-                    'platformVersion': '9.3'}
-    # desired_caps['udid'] = properties.iosDeviceUDID
     logging.info("Starting driver")
     # self.process = subprocess.Popen(['appium'],
     #                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # sleep(10)
     from appium import webdriver
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://10.129.140.95:4723/wd/hub', properties.ios_desired_caps)
     return driver
 
 
@@ -174,6 +169,7 @@ def pytest_runtest_makereport(item, call):
         extra.append(pytest_html.extras.image(item.funcargs['setup'].driver.get_screenshot_as_base64()))
         rep.extra = extra  # adds screenshot to the report
 
+        rep.outcome = str(item.funcargs['setup'].soft_assert.collect_results().get(0))
         mode = "a" if os.path.exists("failures") else "w"
         with open("failures", mode) as f:
             # let's also access a fixture for the fun of it
