@@ -16,8 +16,7 @@ def test_keep_create(setup):
 
     open_note(note_title, setup)
 
-    assert setup.driver.find_element_by_id("com.google.android.keep:id/editable_title").text == note_title
-    assert setup.driver.find_element_by_id("com.google.android.keep:id/edit_note_text").text == note_text
+    verify_note(note_title, note_text, setup)
 
 
 def test_keep_edit(setup):
@@ -27,8 +26,7 @@ def test_keep_edit(setup):
 
     open_note(note_title_edited, setup)
 
-    assert setup.driver.find_element_by_id("com.google.android.keep:id/editable_title").text == note_title_edited
-    assert setup.driver.find_element_by_id("com.google.android.keep:id/edit_note_text").text == note_text_edited
+    verify_note(note_title_edited, note_text_edited, setup)
 
 
 def test_keep_delete(setup):
@@ -77,3 +75,8 @@ def set_note(note_text_to_set, setup):
     element.click()
     element.clear()
     element.send_keys(note_text_to_set)
+
+
+def verify_note(note_title_to_verify, note_text_to_verify, setup):
+    assert setup.driver.find_element_by_id("com.google.android.keep:id/editable_title").text == note_title_to_verify
+    assert setup.driver.find_element_by_id("com.google.android.keep:id/edit_note_text").text == note_text_to_verify
