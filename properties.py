@@ -1,9 +1,7 @@
 # browser = str('Android')
 import os
 
-import properties
-
-browser = str('IOS')
+browser = str('Chrome')
 apiTestingURL = str('http://127.0.0.1:8080/hello-world?name=Tony')
 iosDeviceUDID = str('f14bcd4c08d3456b74a45107514217e6ba57c3da')
 iosDeviceName = str('iPhone 6s Plus')
@@ -20,7 +18,7 @@ PATH = lambda p: os.path.abspath(
 )
 ios_desired_caps = {'app': PATH('iosapp/CardDecks.app'),
                     'appName': 'CardDecks',
-                    'deviceName': properties.iosDeviceName,
+                    'deviceName': iosDeviceName,
                     'platformName': 'iOS',
                     'platformVersion': '9.3'}
 #desired_caps['udid'] = properties.iosDeviceUDID
