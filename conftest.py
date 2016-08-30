@@ -169,7 +169,14 @@ def pytest_runtest_makereport(item, call):
         extra.append(pytest_html.extras.image(item.funcargs['setup'].driver.get_screenshot_as_base64()))
         rep.extra = extra  # adds screenshot to the report
 
-        rep.outcome = str(item.funcargs['setup'].soft_assert.collect_results().get(0))
+#todo fix soft assert check
+        # if rep.outcome == "passed":
+        #     rep.outcome = str(item.funcargs['setup'].soft_assert.collect_results().get(0))
+        #     if rep.outcome == "failed":
+        #         from py._code.code import ReprExceptionInfo
+        #         from py._code.code import ReprFileLocation
+        #         rep.longrepr = ReprExceptionInfo("All hail dynamic typification",
+        #                                          ReprFileLocation(0, "", "Some Soft Asserts failed. TBD: get some exception messages here"))
         mode = "a" if os.path.exists("failures") else "w"
         with open("failures", mode) as f:
             # let's also access a fixture for the fun of it
