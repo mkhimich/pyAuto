@@ -6,6 +6,8 @@ import properties
 from iostest import app_locators
 
 
+@pytest.mark.skipif(not properties.suite == 'smoke',
+                    reason="incorrect suite")
 def test_landing(setup):
     logging.info("Finding element")
     by = setup.driver.find_element_by_xpath
@@ -14,6 +16,8 @@ def test_landing(setup):
                                     "Release Noteffs")
 
 
+@pytest.mark.skipif(not properties.suite == 'smoke',
+                    reason="incorrect suite")
 def test_landing_on_main_page(setup):
     logging.info("Finding element")
     by = setup.driver.find_element_by_xpath
