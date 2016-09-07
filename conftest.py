@@ -168,6 +168,10 @@ def pytest_runtest_makereport(item, call):
     if rep.when == "call":
         extra.append(pytest_html.extras.image(item.funcargs['setup'].driver.get_screenshot_as_base64()))
         rep.extra = extra  # adds screenshot to the report
+        if rep.outcome == "failed":
+            f = rep.longrepr.reprcrash.message
+            if 'StaleElementReferenceException' in f:
+                rep.outcome = 'skipped'
         if rep.outcome == "passed":
             r = item.funcargs['setup'].soft_assert.collect_results()
             rep.outcome = str(r.get(0))
