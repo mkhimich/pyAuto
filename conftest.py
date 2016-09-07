@@ -168,15 +168,11 @@ def pytest_runtest_makereport(item, call):
     if rep.when == "call":
         extra.append(pytest_html.extras.image(item.funcargs['setup'].driver.get_screenshot_as_base64()))
         rep.extra = extra  # adds screenshot to the report
-
-#todo fix soft assert check
-        # if rep.outcome == "passed":
-        #     rep.outcome = str(item.funcargs['setup'].soft_assert.collect_results().get(0))
-        #     if rep.outcome == "failed":
-        #         from py._code.code import ReprExceptionInfo
-        #         from py._code.code import ReprFileLocation
-        #         rep.longrepr = ReprExceptionInfo("All hail dynamic typification",
-        #                                          ReprFileLocation(0, "", "Some Soft Asserts failed. TBD: get some exception messages here"))
+        if rep.outcome == "passed":
+            r = item.funcargs['setup'].soft_assert.collect_results()
+            rep.outcome = str(r.get(0))
+            if r.get(1):
+                rep.longrepr = str(item.funcargs['setup'].soft_assert.collect_results().get(1))
         mode = "a" if os.path.exists("failures") else "w"
         with open("failures", mode) as f:
             # let's also access a fixture for the fun of it
@@ -199,6 +195,7 @@ def setup(request):
     factory.wait = WebDriverWait(factory.driver, properties.implicit_wait)
 
     def tear_down():
+        factory.driver.quit()
         result = "passed"
         message = ""
         if request.node.rep_setup.failed:
@@ -209,16 +206,19 @@ def setup(request):
             if request.node.rep_call.failed:
                 print("executing test failed", request.node.nodeid)
                 result = FAILED
-                message = request.node.rep_call.longrepr.reprcrash.message
+                if hasattr(request.node.rep_call, 'longrepr.reprcrash.message'):
+                    message = request.node.rep_call.longrepr.reprcrash.message
+                else:
+                    message = request.node.rep_call.longrepr
 
         if result == FAILED:
-            if not factory.driver.get_screenshot_as_file("SCREENSHOTS" + "/"
-                                                                 + request.node.nodeid.replace("/", "..")
-                                                                 + "_"
-                                                                 + str(start_time) + ".png"):
+            try:
+                factory.driver.get_screenshot_as_file("SCREENSHOTS" + "/"
+                                                      + request.node.nodeid.replace("/", "..")
+                                                      + "_"
+                                                      + str(start_time) + ".png")
+            except Exception as e:
                 logger.warn("Couldn't take a screenshot for " + request.node.nodeid)
-
-        factory.driver.quit()
 
         try:
             db.insert_result(request.node.nodeid, browser_name, start_time,
