@@ -170,6 +170,7 @@ def pytest_runtest_makereport(item, call):
         rep.extra = extra  # adds screenshot to the report
         if rep.outcome == "failed":
             f = rep.longrepr.reprcrash.message
+            # skipping common exceptions
             if 'StaleElementReferenceException' in f:
                 rep.outcome = 'skipped'
         if rep.outcome == "passed":
