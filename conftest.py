@@ -105,7 +105,7 @@ def get_android_driver():
     path = PATH('androidapp/keep.apk')
     desired_caps = {'device': 'Android',
                     'platformName': 'Android',
-                    'platformVersion': '6.0.1',
+                    'platformVersion': '6.0',
                     'deviceName': 'Android',
                     'app': path}
     logging.info("Starting driver")
